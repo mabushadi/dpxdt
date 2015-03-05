@@ -227,13 +227,13 @@ page.onLoadFinished = function(status) {
 
 // Takes the screenshot and exits successfully.
 page.doScreenshot = function() {
+    var screenshotDelay = config.screenshotDelay || 0;
     console.log('Taking the screenshot and saving to:', outputPath);
     setTimeout(function(){
         page.render(outputPath);
         phantom.exit(0);
-    }, 5000);
+    }, screenshotDelay);
 };
-
 
 // Injects CSS and JS into the page.
 page.doInject = function() {
