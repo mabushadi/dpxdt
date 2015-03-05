@@ -266,6 +266,24 @@ page.doInject = function() {
         }
     }
 
+     if(config.onReadyInjectJs) {
+        didInject = true;
+        console.log('Injecting OnReady JS: ' + config.onReadyInjectJs);
+        var success = page.evaluate(function(config) {
+            try {
+                window.eval(config.onReadyInjectJs);
+            } catch (e) {
+                console.log('Exception running OnReady JS');
+                console.log(e.stack);
+                return false;
+            }
+            return true;
+        }, config);
+        if (!success) {
+            phantom.exit(1);
+        }
+    }
+
     if (!didInject) {
         page.doScreenshot();
     } else {
