@@ -153,6 +153,47 @@ def create_release():
         release_number=release.number,
         url=url)
 
+@app.route('/api/release_info', methods=['POST'])
+@auth.build_api_access_required
+@utils.retryable_transaction()
+def release_info():
+    build_id = request.form.get('build_id', type=str)
+    utils.jsonify_assert(build_id, 'build_id required')
+
+    release_name = request.form.get('release_name', type=str)
+    utils.jsonify_assert(release_name, 'release_name required')
+
+    release_number = request.form.get('release_number', type=str)
+    utils.jsonify_assert(release_number, 'release_number required')
+
+    release = (
+         models.Release.query
+         .filter_by(
+             build_id=build_id,
+             name=release_name,
+             number=release_number)
+         .order_by(models.Release.created.desc())
+         .first()
+    )
+
+    utils.jsonify_assert(release, 'release not found')
+    query = models.Run.query.filter_by(release_id=release.id).order_by(models.Run.created.asc())
+    last_failed_run = ''
+    num_failed_runs = 0
+    for run in query:
+        if run.status == models.Run.FAILED:
+            last_failed_run = (run.created + ':' + run.name)
+            num_failed_runs += 1
+
+    return flask.jsonify(
+        build_id=release.build_id,
+        release_number=release_number,
+        release_name=release.name,
+        release_status=release.status,
+        last_failed_run=last_failed_run,
+        num_failed_runs=num_failed_runs
+    )
+
 
 def _check_release_done_processing(release):
     """Moves a release candidate to reviewing if all runs are done."""
