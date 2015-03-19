@@ -182,7 +182,7 @@ def release_info():
     num_failed_runs = 0
     for run in query:
         if run.status == models.Run.FAILED:
-            last_failed_run = (run.created + ':' + run.name)
+            last_failed_run = (str(run.created) + ':' + run.name)
             num_failed_runs += 1
 
     return flask.jsonify(
