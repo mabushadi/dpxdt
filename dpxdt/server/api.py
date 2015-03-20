@@ -181,7 +181,7 @@ def release_info():
     last_failed_run = ''
     num_failed_runs = 0
     for run in query:
-        if run.status == models.Run.FAILED:
+        if run.status == models.Run.FAILED or run.status == models.Run.DIFF_FOUND:
             last_failed_run = (str(run.created) + ':' + run.name)
             num_failed_runs += 1
 
