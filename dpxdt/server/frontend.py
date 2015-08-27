@@ -19,6 +19,7 @@ import base64
 import datetime
 import hashlib
 import logging
+import urllib2
 
 # Local libraries
 import flask
@@ -146,6 +147,17 @@ def view_build():
         next_offset=offset + page_size,
         last_offset=max(0, offset -  page_size))
 
+def promote_release(username, password, url):
+	 request_data = """<?xml version="1.0"?>
+	     <build>
+		 <buildType id="Sdd_AdmDemo_45PromoteToStag"/>
+                 <comment><text>Depicted Build</text></comment>
+             </build>"""
+         base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
+         headers = {'X-Requested-With' : 'urllib2','Content-Type': 'application/xml','Authorization': 'Basic %s' % base64string}
+         req = urllib2.Request(url=url,data=request_data,headers=headers)
+         response = urllib2.urlopen(req)
+	 return response
 
 @app.route('/release', methods=['GET', 'POST'])
 @auth.build_access_required
@@ -174,6 +186,7 @@ def view_release():
 
         if form.good.data and release.status in decision_states:
             release.status = models.Release.GOOD
+	    promote_release('svc_nTES_teamcity', '0n0un0it2!', 'http://ci.mia.ucloud.int/httpAuth/app/rest/buildQueue')
             auth.save_admin_log(build, release_good=True, release=release)
         elif form.bad.data and release.status in decision_states:
             release.status = models.Release.BAD
