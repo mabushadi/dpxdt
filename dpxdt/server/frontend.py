@@ -186,7 +186,7 @@ def view_release():
 
         if form.good.data and release.status in decision_states:
             release.status = models.Release.GOOD
-	    promote_release('svc_nTES_teamcity', '0n0un0it2!', 'http://ci.mia.ucloud.int/httpAuth/app/rest/buildQueue')
+	    promote_release('xxxx', 'xxxx', 'xxxx')
             auth.save_admin_log(build, release_good=True, release=release)
         elif form.bad.data and release.status in decision_states:
             release.status = models.Release.BAD
